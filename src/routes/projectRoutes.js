@@ -1,16 +1,8 @@
 const express = require("express");
-const conn = require("../config/db");
+const controller = require("../controllers/projectController");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const [rows] = await conn.query("SELECT * from portfolio;");
-    res.status(200).json(rows);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json();
-  }
-});
+router.get("/", controller.getProjects);
 
 module.exports = router;
