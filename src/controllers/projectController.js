@@ -3,11 +3,11 @@ const knex = require("../config/knex");
 
 exports.getProjects = async (req, res) => {
   try {
-    const projetos = await knex("project").select("*");
-    if (projetos.length == 0) {
+    const projects = await knex("project").select("*");
+    if (projects.length == 0) {
       res.status(404).json({ message: "item not found" });
     }
-    res.status(200).json(projetos);
+    res.status(200).json(projects);
   } catch (err) {
     console.log(err);
     res.status(500).json();
@@ -17,15 +17,11 @@ exports.getProjects = async (req, res) => {
 exports.getProjectById = async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const [rows] = await conn.query(
-      `SELECT * from portfolio where id = ${id};`
-    );
-
-    if (rows.length == 0) {
+    const project = await knex("project").where("id", id);
+    if (project.length === 0) {
       res.status(404).json({ message: "item not found" });
     }
-
-    res.status(200).json(rows);
+    res.status(200).json(project);
   } catch (err) {
     console.log(err);
     res.status(500).json();
