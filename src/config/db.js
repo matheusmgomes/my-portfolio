@@ -1,10 +1,11 @@
 const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const conn = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "root_password",
-  database: "my_portfolio",
+  host: process.env.HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
   maxIdle: 10, // Máximo de conexões inativas; o valor padrão é o mesmo que "connectionLimit"
