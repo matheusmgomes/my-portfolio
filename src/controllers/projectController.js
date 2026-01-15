@@ -62,17 +62,12 @@ exports.updateProject = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const [row] = await conn.query(`SELECT * from portfolio where id = ${id};`);
-
-    if (row.length === 0) {
-      res.status(404).json({ message: "Request does not exist" });
-    }
     const [result] = await conn.query(
       `UPDATE portfolio SET name = ?, stacks=?, github_link = ? WHERE id = ${id};`,
       [name, stacks, github]
     );
 
-    if (row.length == 0) {
+    if (result.affectedRows === 0) {
       res.status(404).json({ message: "item not found" });
     }
 
