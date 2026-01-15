@@ -1,14 +1,13 @@
 const conn = require("../config/db");
+const knex = require("../config/knex");
 
 exports.getProjects = async (req, res) => {
   try {
-    const [rows] = await conn.query("SELECT * from portfolio;");
-
-    if (rows.length == 0) {
+    const projetos = await knex("project").select("*");
+    if (projetos.length == 0) {
       res.status(404).json({ message: "item not found" });
     }
-
-    res.status(200).json(rows);
+    res.status(200).json(projetos);
   } catch (err) {
     console.log(err);
     res.status(500).json();
