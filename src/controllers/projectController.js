@@ -4,6 +4,10 @@ exports.getProjects = async (req, res) => {
   try {
     const [rows] = await conn.query("SELECT * from portfolio;");
 
+    if (rows.length == 0) {
+      res.status(404).json({ message: "item not found" });
+    }
+
     res.status(200).json(rows);
   } catch (err) {
     console.log(err);
@@ -18,6 +22,10 @@ exports.getProjectById = async (req, res) => {
       `SELECT * from portfolio where id = ${id};`
     );
 
+    if (rows.length == 0) {
+      res.status(404).json({ message: "item not found" });
+    }
+
     res.status(200).json(rows);
   } catch (err) {
     console.log(err);
@@ -26,8 +34,53 @@ exports.getProjectById = async (req, res) => {
 };
 
 exports.createProject = async (req, res) => {
-  console.log(req.body);
-  res.status(200).json();
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "Request is empty" });
+  }
+  const name = req.body.name;
+  const stacks = req.body.stacks;
+  const github = req.body.github_link;
+  try {
+    const [row] = await conn.query(
+      "INSERT INTO portfolio(name, stacks, github_link) VALUES (?,?,?)",
+      [name, stacks, github]
+    );
+    res.status(201).json(row);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json;
+  }
+};
+
+exports.updateProject = async (req, res) => {
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "Request is empty" });
+  }
+  const name = req.body.name;
+  const stacks = req.body.stacks;
+  const github = req.body.github_link;
+  const id = parseInt(req.params.id);
+
+  try {
+    const [row] = await conn.query(`SELECT * from portfolio where id = ${id};`);
+
+    if (row.length === 0) {
+      res.status(404).json({ message: "Request does not exist" });
+    }
+    const [result] = await conn.query(
+      `UPDATE portfolio SET name = ?, stacks=?, github_link = ? WHERE id = ${id};`,
+      [name, stacks, github]
+    );
+
+    if (row.length == 0) {
+      res.status(404).json({ message: "item not found" });
+    }
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json();
+  }
 };
 
 exports.deleteProject = async (req, res) => {
@@ -35,7 +88,11 @@ exports.deleteProject = async (req, res) => {
   try {
     await conn.query(`DELETE FROM portfolio where id = ${id};`);
 
-    res.status(200).json({ message: "row deleted" });
+    if (rows.length == 0) {
+      res.status(404).json({ message: "item not found" });
+    }
+
+    res.status(204).json({ message: "row deleted" });
   } catch (err) {
     console.log(err);
     res.status(500).json();
