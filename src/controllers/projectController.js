@@ -29,40 +29,38 @@ exports.getProjectById = async (req, res) => {
 };
 
 exports.createProject = async (req, res) => {
-  if (Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: "Request is empty" });
-  }
-  const name = req.body.name;
-  const stacks = req.body.stacks;
-  const github = req.body.github_link;
   try {
-    const [row] = await conn.query(
-      "INSERT INTO portfolio(name, stacks, github_link) VALUES (?,?,?)",
-      [name, stacks, github]
-    );
-    res.status(201).json(row);
+    const name = req.body.name;
+    const stacks = req.body.stacks;
+    const github = req.body.github_link;
+    const [result] = await knex("project").insert({
+      name: name,
+      stacks: stacks,
+      github_link: github,
+    });
+    res.status(201).json(result);
   } catch (err) {
     console.log(err);
-    res.status(500).json;
+    res.status(500).json();
   }
 };
 
 exports.updateProject = async (req, res) => {
-  if (Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: "Request is empty" });
-  }
   const name = req.body.name;
   const stacks = req.body.stacks;
   const github = req.body.github_link;
   const id = parseInt(req.params.id);
 
   try {
-    const [result] = await conn.query(
-      `UPDATE portfolio SET name = ?, stacks=?, github_link = ? WHERE id = ${id};`,
-      [name, stacks, github]
-    );
+    // const [result] = await conn.query(
+    //   `UPDATE portfolio SET name = ?, stacks=?, github_link = ? WHERE id = ${id};`,
+    //   [name, stacks, github]
+    // );
+    const result = await knex("project")
+      .where({ id: id })
+      .update({ name: name, stacks: stacks, github_link: github });
 
-    if (result.affectedRows === 0) {
+    if (result === 0) {
       res.status(404).json({ message: "item not found" });
     }
 
@@ -76,11 +74,7 @@ exports.updateProject = async (req, res) => {
 exports.deleteProject = async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    await conn.query(`DELETE FROM portfolio where id = ${id};`);
-
-    if (rows.length == 0) {
-      res.status(404).json({ message: "item not found" });
-    }
+    await knex("project").where({ id }).del();
 
     res.status(204).json({ message: "row deleted" });
   } catch (err) {
